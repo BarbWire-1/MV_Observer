@@ -1,0 +1,20 @@
+/*
+ *   Copyright (c) 2023 
+ *   All rights reserved.
+ */
+body {
+    
+    background-color: rgb(49, 49, 48);
+    
+}
+#container {
+    background-color: white;
+    width: 300px;
+    height: 130px;
+    padding: 10px;
+    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-150px, -65px);
+}
