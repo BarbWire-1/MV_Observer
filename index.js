@@ -3,6 +3,9 @@
  *   All rights reserved.
  */
 //import { deepClone } from "./Helpers/index.js";
+
+ // TODO add a check to only update changed keys
+ // best only send changed key in notify();
 window.onload = () => {
 
     class Model {
@@ -12,23 +15,18 @@ window.onload = () => {
             
             this.observers = [];
             this._data = obj.data;
-            this._test = obj.test
-
-
-           
-            //this.#tempData = deepClone(obj) 
-            this.#tempData = deepClone(obj.data);
+            this._test = obj.test;
+            this.init = deepClone(obj.data);//clone to use for initialistaion
+            this.#tempData = this.init;// gets mutated in setters later - passed to notify - passed out to obj
             
             for (const key in this.#tempData) {
                 
                 Object.defineProperty(obj.data, key, {
 
                     set: (value) => {
-                        // console.log(tempData);
                         this.#tempData[ key ] = value;
                         this._data = this.#tempData;
                         this.notify();
-                        console.log('tempData inner: ' + JSON.stringify(this.#tempData))
                     },
                     
                     get: () => { return this._data[ key ] },
@@ -36,8 +34,9 @@ window.onload = () => {
                 });
 
             };
-            console.log('tempData outer: ' + JSON.stringify(this.#tempData))//  here it keeps INITIAL data
+            //console.log('tempData outer: ' + JSON.stringify(this.#tempData))//  here it keeps INITIAL data
             Object.seal(obj.data);
+           
         };
 
 
@@ -51,22 +50,23 @@ window.onload = () => {
         // TODO if have different observer-groups create variable of datas to notify - or notify per key
         notify() {
             // call update function in subscribers
-            this.observers.forEach(observer => observer.update(this._data));
+            this.observers.forEach(observer => observer.update(this.#tempData));
         }
 
     }
 
 
-
+   
     class View1 {
         constructor (model) {
             this.model = model;
             this.model.subscribe(this);
+            this.update(this.model.init);
         };
 
         update(updated) {
            
-            //console.log('updated: '+ JSON.stringify(updated))
+            console.log('updated: '+ JSON.stringify(updated))
             for (let key in updated) {
                 //switch to define which keys are actually of interest here
                 switch (key) {
@@ -88,6 +88,7 @@ window.onload = () => {
         constructor (model) {
             this.model = model;
             this.model.subscribe(this);
+            this.update(this.model.init)
         }
 
         update(updated) {
@@ -133,14 +134,16 @@ window.onload = () => {
     };
 
     const model = new Model(anyData);
+   
     const view1 = new View1(model)//.update(model.data);
     const view2 = new View2(model);
+   
 
     anyData.data.setting1 = 'Coming from anyData, passing update and then back from model';
-    anyData.data.setting3 = "Nice to find myself here!";
+    // anyData.data.setting3 = "Nice to find myself here!";
 
 
-    anyData.data.setting10 = `I should throw.`;
+    //anyData.data.setting10 = `I should throw.`; //... and I do
     //console.log('anyData: ' + JSON.stringify(anyData)); // YEAH!!! Back again!
 
 
