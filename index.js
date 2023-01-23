@@ -4,38 +4,41 @@
  */
 //import { deepClone } from "./Helpers/index.js";
 
- // TODO add a check to only update changed keys
- // best only send changed key in notify();
 window.onload = () => {
 
     class Model {
+        #data
         #tempData
         // passing any initial data object to the model
         constructor (obj) {
             
             this.observers = [];
-            this._data = obj.data;
+            this.#data = obj.data;
             this._test = obj.test;
-            this.init = deepClone(obj.data);//clone to use for initialistaion
+            this.init = JSON.parse(JSON.stringify(obj.data));//clone to use for initialistaion in views
             this.#tempData = this.init;// gets mutated in setters later - passed to notify - passed out to obj
             
+            // TODO really makes this recursive now as it finally works???
             for (const key in this.#tempData) {
-                let updated = { key: null }
-                console.log(updated)
+                //console.log(key)// key-names
+                let updated = { prevValue: this.#data[key] } // need this temp variable to pass in notify with recursion
+                //console.log(updated)// key: [key]
                 Object.defineProperty(obj.data, key, {
 
                     set: (value) => {
                         this.#tempData[ key ] = value;
                         this._data = this.#tempData;
                         updated[ key ] = value;
-                        console.log(updated)
+                        //console.log(updated)
                         this.notify(updated);
                     },
                     
-                    get: () => { return this._data[ key ] },
+                    get: () => {
+                        return this._data[ key ];
+                    },
 
                 });
-
+               
             };
             
             //console.log('tempData outer: ' + JSON.stringify(this.#tempData))//  here it keeps INITIAL data
@@ -43,15 +46,15 @@ window.onload = () => {
            
         };
 
-
+        // TODO different subscriptions to different data-sets (?)
         subscribe(observer) {
             this.observers.push(observer);
         }
+        
         unsubscribe(observer) {
             this.observers = this.observers.filter(obs => obs !== observer);
         }
-        // TODO could have a notifyRerender for only updated? and this one as init?
-        // TODO if have different observer-groups create variable of datas to notify - or notify per key
+        
         notify(key) {
             // call update function in subscribers
             this.observers.forEach(observer => observer.update(key));
@@ -70,7 +73,7 @@ window.onload = () => {
 
         update(updated) {
            
-            console.log('updated: '+ JSON.stringify(updated))
+            //console.log('updated: '+ JSON.stringify(updated))
             for (let key in updated) {
                 //switch to define which keys are actually of interest here
                 switch (key) {
@@ -96,8 +99,9 @@ window.onload = () => {
         }
 
         update(updated) {
+            //console.log(updated)
             for (let key in updated) {
-                console.log(key)
+                //console.log(updated)
                 switch (key) {
                    
                     case "setting2":
@@ -140,19 +144,16 @@ window.onload = () => {
 
     const model = new Model(anyData);
    
-    const view1 = new View1(model)//.update(model.data);
-    const view2 = new View2(model);
+    const test1 = new View1(model);
+    const test2 = new View2(model);
    
 
-    // anyData.data.setting1 = 'Coming from anyData, passing update and then back from model';
-     anyData.data.setting3 = "Nice to find myself here!";
+    anyData.data.setting1 = 'Coming from anyData, passing update and then back from model';
+    anyData.data.setting3 = "Nice to find myself here!";
 
 
     //anyData.data.setting10 = `I should throw.`; //... and I do
-    console.log('anyData: ' + JSON.stringify(anyData)); // YEAH!!! Back again!
-
-
-   
+    //console.log('anyData: ' + JSON.stringify(anyData)); // YEAH!!! Back again!
 
 }
 
