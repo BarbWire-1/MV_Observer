@@ -34,6 +34,7 @@ window.onload = () => {
                 });
 
             };
+            
             //console.log('tempData outer: ' + JSON.stringify(this.#tempData))//  here it keeps INITIAL data
             Object.seal(obj.data);
            
@@ -93,13 +94,14 @@ window.onload = () => {
 
         update(updated) {
             for (let key in updated) {
+                console.log(key)
                 switch (key) {
                    
                     case "setting2":
                         document.getElementById("setting2b").innerHTML = updated[ key ];
                         break;
                     case "setting3":
-                        // console.log(updated[ key ])
+                        console.log(updated[ key ])
                         document.getElementById("setting3b").innerHTML = updated[ key ];
                         break;
                 }
@@ -139,8 +141,8 @@ window.onload = () => {
     const view2 = new View2(model);
    
 
-    anyData.data.setting1 = 'Coming from anyData, passing update and then back from model';
-    // anyData.data.setting3 = "Nice to find myself here!";
+    // anyData.data.setting1 = 'Coming from anyData, passing update and then back from model';
+     anyData.data.setting3 = "Nice to find myself here!";
 
 
     //anyData.data.setting10 = `I should throw.`; //... and I do
