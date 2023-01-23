@@ -20,13 +20,16 @@ window.onload = () => {
             this.#tempData = this.init;// gets mutated in setters later - passed to notify - passed out to obj
             
             for (const key in this.#tempData) {
-                
+                let updated = { key: null }
+                console.log(updated)
                 Object.defineProperty(obj.data, key, {
 
                     set: (value) => {
                         this.#tempData[ key ] = value;
                         this._data = this.#tempData;
-                        this.notify();
+                        updated[ key ] = value;
+                        console.log(updated)
+                        this.notify(updated);
                     },
                     
                     get: () => { return this._data[ key ] },
@@ -49,9 +52,9 @@ window.onload = () => {
         }
         // TODO could have a notifyRerender for only updated? and this one as init?
         // TODO if have different observer-groups create variable of datas to notify - or notify per key
-        notify() {
+        notify(key) {
             // call update function in subscribers
-            this.observers.forEach(observer => observer.update(this.#tempData));
+            this.observers.forEach(observer => observer.update(key));
         }
 
     }
@@ -146,7 +149,7 @@ window.onload = () => {
 
 
     //anyData.data.setting10 = `I should throw.`; //... and I do
-    //console.log('anyData: ' + JSON.stringify(anyData)); // YEAH!!! Back again!
+    console.log('anyData: ' + JSON.stringify(anyData)); // YEAH!!! Back again!
 
 
    
